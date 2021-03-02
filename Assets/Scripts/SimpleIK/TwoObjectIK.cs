@@ -21,16 +21,23 @@ public class TwoObjectIK : MonoBehaviour
 
     private void Update()
     {
+        // Calculate the y rotation
+        float yRotation = Mathf.Rad2Deg * Mathf.Atan2(joint0.position.z - armTarget.position.z, joint0.position.x - armTarget.position.x);
+        yRotation = 180 - yRotation;
+
+        // Rotate the target position to the XY plane so that the z rotations of the joints can be calculated in 2D
+        Vector2 targetPosition = Quaternion.Euler(0, -yRotation, 0) * armTarget.position;
+
         // Calculate distance between the target position and the root of the arm
-        float distanceToTarget = Vector2.Distance(joint0.position, armTarget.position);
+        float distanceToTarget = Vector2.Distance(joint0.position, targetPosition);
 
         // If the target is further than the arm can reach
         if (distanceToTarget > lengthBone0 + lengthBone1)
         {
-            float angle0 = Mathf.Atan2(armTarget.position.y - joint0.position.y, armTarget.position.x - joint0.position.x);
+            float angle0 = Mathf.Atan2(targetPosition.y - joint0.position.y, targetPosition.x - joint0.position.x);
             float angle0degrees = angle0 * Mathf.Rad2Deg;
 
-            joint0.rotation = Quaternion.Euler(0, 0, angle0degrees);
+            joint0.localRotation = Quaternion.Euler(0, yRotation, angle0degrees);
             joint1.localRotation = Quaternion.Euler(0, 0, 0);
 
         } else
@@ -40,7 +47,7 @@ public class TwoObjectIK : MonoBehaviour
             float lengthBone1Squared = lengthBone1 * lengthBone1;
 
             // Calculate angle for joint 0
-            float beef = Mathf.Atan2(armTarget.position.y - joint0.position.y, armTarget.position.x - joint0.position.x);
+            float beef = Mathf.Atan2(targetPosition.y - joint0.position.y, targetPosition.x - joint0.position.x);
             float angle0 = Mathf.Acos((distanceToTargetSquared + lengthBone0Squared - lengthBone1Squared)
                                         / (2 * distanceToTarget * lengthBone0)) + beef;
             float angle0degrees = angle0 * Mathf.Rad2Deg;
@@ -51,7 +58,7 @@ public class TwoObjectIK : MonoBehaviour
                                         / (2 * lengthBone1 * lengthBone0)) - Mathf.PI;
             float angle1degrees = angle1 * Mathf.Rad2Deg;
 
-            joint0.rotation = Quaternion.Euler(0, 0, angle0degrees);
+            joint0.localRotation = Quaternion.Euler(0, yRotation, angle0degrees);
             joint1.localRotation = Quaternion.Euler(0, 0, angle1degrees);
         }
     }
