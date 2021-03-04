@@ -11,6 +11,7 @@ public class GradientDescentArmController : MonoBehaviour
     [Header("IK calculation variables")]
     [SerializeField] private float deltaRotation = 0.1f;
     [SerializeField] private float learningRate = 0.1f;
+    [SerializeField] private float targetDistance = 0.1f;
     private float[] boneLengths;
 
     private Vector3[] JointRotations
@@ -61,6 +62,10 @@ public class GradientDescentArmController : MonoBehaviour
     {
         Vector3[] jointRotations = JointRotations;
         Vector3[] gradients = new Vector3[jointRotations.Length];
+
+        if (CurrentDistanceFromTarget < targetDistance)
+            return gradients;
+
         for (int i = 0; i < jointRotations.Length; i++)
         {
             //X
