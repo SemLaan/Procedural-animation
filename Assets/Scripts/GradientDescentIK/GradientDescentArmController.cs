@@ -12,9 +12,12 @@ public class GradientDescentArmController : MonoBehaviour
     [SerializeField] private float deltaRotation = 0.1f;
     [SerializeField] private float targetDistance = 0.1f;
     [SerializeField] private float targetAngle = 0.1f;
+    [SerializeField] private float targetComfort = 0.1f;
     [SerializeField] private float learningRate = 0.1f;
     [SerializeField] private float distanceImpact = 0.1f;
     [SerializeField] private float rotationImpact = 0.1f;
+    [SerializeField] private float comfortImpact = 0.1f;
+    [SerializeField] private int IKIterationsPerFrame = 1;
     [Header("Debug")]
     [SerializeField] private bool startupChecks = true;
     [SerializeField] private bool printGradients = true;
@@ -58,6 +61,14 @@ public class GradientDescentArmController : MonoBehaviour
         }
     }
 
+    private float CurrentComfort
+    {
+        get
+        {
+            return CalculateComfort(JointRotations);
+        }
+    }
+
     private void Awake()
     {
         Transform currentJoint = rootJoint;
@@ -87,12 +98,13 @@ public class GradientDescentArmController : MonoBehaviour
         {
             boneLengths[i] = joints[i].GetComponent<IKJoint>().boneLength;
         }
-        Check();
+        if (startupChecks)
+            Check();
     }
 
     private void Update()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < IKIterationsPerFrame; i++)
         {
             Vector3[] gradients = CalculateGradients();
             UpdateRotations(gradients);
@@ -142,14 +154,18 @@ public class GradientDescentArmController : MonoBehaviour
             float updatedRotationDifferenceFromTarget = Mathf.Abs(Quaternion.Angle(finalJointRotation, armTarget.rotation) / 180);
             rotationGradient = (updatedRotationDifferenceFromTarget - CurrentRotationDifferenceFromTarget) / deltaRotation;
         }
-        
+
+        float updatedComfort = CalculateComfort(jointRotations);
+        float comfortGradient = (updatedComfort - CurrentComfort) / deltaRotation;
+
         if (printGradients)
         {
             Debug.Log("Distance gradient: " + distanceGradient);
             Debug.Log("Rotation gradient: " + rotationGradient);
+            Debug.Log("Comfort gradient: " + comfortGradient);
         }
 
-        float totalGradient = distanceGradient * distanceImpact + rotationGradient * rotationImpact;
+        float totalGradient = distanceGradient * distanceImpact + rotationGradient * rotationImpact + comfortGradient * comfortImpact;
         return totalGradient;
     }
 
@@ -163,6 +179,16 @@ public class GradientDescentArmController : MonoBehaviour
             rotations[i].z -= learningRate * gradients[i].z;
         }
         JointRotations = rotations;
+    }
+
+    private float CalculateComfort(Vector3[] rotations)
+    {
+        float comfort = 0;
+        foreach (Vector3 rotation in rotations)
+        {
+            comfort += Quaternion.Angle(Quaternion.identity, Quaternion.Euler(rotation));
+        }
+        return comfort / rotations.Length;
     }
 
     private float DistanceFromTarget(Vector3[] rotations, float[] boneLenghts)

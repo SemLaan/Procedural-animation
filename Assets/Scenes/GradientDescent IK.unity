@@ -361,8 +361,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2094339345}
     - target: {fileID: 3723489811470373112, guid: 1d878479dc2be23488e053f28f52ba9c, type: 3}
+      propertyPath: targetAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723489811470373112, guid: 1d878479dc2be23488e053f28f52ba9c, type: 3}
       propertyPath: learningRate
-      value: 5
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3723489811470373112, guid: 1d878479dc2be23488e053f28f52ba9c, type: 3}
+      propertyPath: comfortImpact
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3723489811470373112, guid: 1d878479dc2be23488e053f28f52ba9c, type: 3}
       propertyPath: distanceImpact
