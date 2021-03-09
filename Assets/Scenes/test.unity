@@ -1541,9 +1541,12 @@ MonoBehaviour:
   rootJoint: {fileID: 3723489811157693418}
   deltaRotation: 0.1
   targetDistance: 0.1
+  targetAngle: 0.1
   learningRate: 1
   distanceImpact: 1
-  rotationImpact: 0
+  rotationImpact: 10
+  startupChecks: 1
+  printGradients: 0
 --- !u!1 &3723489810923534617
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,7 +8,6 @@ public class GradientDescentArmController : MonoBehaviour
     [SerializeField] private Transform armTarget;
     [SerializeField] private Transform hand;
     [SerializeField] private Transform rootJoint;
-    private Transform[] joints;
     [Header("IK calculation variables")]
     [SerializeField] private float deltaRotation = 0.1f;
     [SerializeField] private float targetDistance = 0.1f;
@@ -16,6 +15,11 @@ public class GradientDescentArmController : MonoBehaviour
     [SerializeField] private float learningRate = 0.1f;
     [SerializeField] private float distanceImpact = 0.1f;
     [SerializeField] private float rotationImpact = 0.1f;
+    [Header("Debug")]
+    [SerializeField] private bool startupChecks = true;
+    [SerializeField] private bool printGradients = true;
+
+    private Transform[] joints;
     private float[] boneLengths;
 
     private Vector3[] JointRotations
@@ -100,9 +104,6 @@ public class GradientDescentArmController : MonoBehaviour
         Vector3[] jointRotations = JointRotations;
         Vector3[] gradients = new Vector3[jointRotations.Length];
 
-        if (CurrentDistanceFromTarget < targetDistance)
-            return gradients;
-
         for (int i = 0; i < jointRotations.Length; i++)
         {
             //X
@@ -142,6 +143,12 @@ public class GradientDescentArmController : MonoBehaviour
             rotationGradient = (updatedRotationDifferenceFromTarget - CurrentRotationDifferenceFromTarget) / deltaRotation;
         }
         
+        if (printGradients)
+        {
+            Debug.Log("Distance gradient: " + distanceGradient);
+            Debug.Log("Rotation gradient: " + rotationGradient);
+        }
+
         float totalGradient = distanceGradient * distanceImpact + rotationGradient * rotationImpact;
         return totalGradient;
     }
