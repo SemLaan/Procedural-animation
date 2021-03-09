@@ -7,11 +7,14 @@ public class GradientDescentArmController : MonoBehaviour
     [Header("Transform references")]
     [SerializeField] private Transform armTarget;
     [SerializeField] private Transform hand;
-    [SerializeField] private Transform[] joints;
+    [SerializeField] private Transform rootJoint;
+    private Transform[] joints;
     [Header("IK calculation variables")]
     [SerializeField] private float deltaRotation = 0.1f;
-    [SerializeField] private float learningRate = 0.1f;
     [SerializeField] private float targetDistance = 0.1f;
+    [SerializeField] private float learningRate = 0.1f;
+    [SerializeField] private float distanceImpact = 0.1f;
+    [SerializeField] private float rotationImpact = 0.1f;
     private float[] boneLengths;
 
     private Vector3[] JointRotations
@@ -42,6 +45,13 @@ public class GradientDescentArmController : MonoBehaviour
         }
     }
 
+    private float CurrentRotationDifferenceFromTarget
+    {
+        get
+        {
+            return Mathf.Abs(Quaternion.Angle(hand.rotation, armTarget.rotation) / 180);
+        }
+    }
 
     private void Awake()
     {
@@ -108,6 +118,21 @@ public class GradientDescentArmController : MonoBehaviour
             jointRotations = JointRotations;
         }
         return gradients;
+    }
+
+    private float CalculatePartialGradient(Vector3[] jointRotations, int joint, Vector3 axis)
+    {
+        jointRotations[joint] += deltaRotation * axis;
+
+        Quaternion finalJointRotation = new Quaternion();
+        
+        float updatedDistanceFromTarget = DistanceFromTarget(jointRotations, boneLengths, ref finalJointRotation);
+        float distanceGradient = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
+
+        float updatedRotationDifferenceFromTarget = Mathf.Abs(Quaternion.Angle(finalJointRotation, armTarget.rotation) / 180);
+        float rotationGradient = (updatedRotationDifferenceFromTarget - CurrentRotationDifferenceFromTarget) / deltaRotation;
+        float totalGradient = distanceGradient * distanceImpact + rotationGradient * rotationImpact;
+        return totalGradient;
     }
 
     private void UpdateRotations(Vector3[] gradients)
