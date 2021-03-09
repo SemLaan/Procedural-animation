@@ -87,8 +87,11 @@ public class GradientDescentArmController : MonoBehaviour
 
     private void Update()
     {
-        Vector3[] gradients = CalculateGradients();
-        UpdateRotations(gradients);
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3[] gradients = CalculateGradients();
+            UpdateRotations(gradients);
+        }
     }
 
     private Vector3[] CalculateGradients()
@@ -102,19 +105,16 @@ public class GradientDescentArmController : MonoBehaviour
         for (int i = 0; i < jointRotations.Length; i++)
         {
             //X
-            jointRotations[i].x += deltaRotation;
-            float updatedDistanceFromTarget = DistanceFromTarget(jointRotations, boneLengths);
-            gradients[i].x = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
+            float xGradient = CalculatePartialGradient(jointRotations, i, Vector3.right);
+            gradients[i].x = xGradient;
             jointRotations = JointRotations;
             //Y
-            jointRotations[i].y += deltaRotation;
-            updatedDistanceFromTarget = DistanceFromTarget(jointRotations, boneLengths);
-            gradients[i].y = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
+            float yGradient = CalculatePartialGradient(jointRotations, i, Vector3.up);
+            gradients[i].y = yGradient;
             jointRotations = JointRotations;
             //Z
-            jointRotations[i].z += deltaRotation;
-            updatedDistanceFromTarget = DistanceFromTarget(jointRotations, boneLengths);
-            gradients[i].z = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
+            float zGradient = CalculatePartialGradient(jointRotations, i, Vector3.forward);
+            gradients[i].z = zGradient;
             jointRotations = JointRotations;
         }
         return gradients;
@@ -191,5 +191,9 @@ public class GradientDescentArmController : MonoBehaviour
         print(joints[0].position);
         print("Distance from target: " + DistanceFromTarget(JointRotations, boneLengths));
         print("Distance from target check: " + CurrentDistanceFromTarget);
+        print("hand rotation: " + hand.rotation.eulerAngles);
+        print("target rotation: " + armTarget.rotation.eulerAngles);
+        print("angle between rotations: " + Quaternion.Angle(hand.rotation, armTarget.rotation));
+        print("Rotation difference: " + CurrentRotationDifferenceFromTarget);
     }
 }
