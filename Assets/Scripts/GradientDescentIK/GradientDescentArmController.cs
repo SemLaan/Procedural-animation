@@ -12,6 +12,7 @@ public class GradientDescentArmController : MonoBehaviour
     [Header("IK calculation variables")]
     [SerializeField] private float deltaRotation = 0.1f;
     [SerializeField] private float targetDistance = 0.1f;
+    [SerializeField] private float targetAngle = 0.1f;
     [SerializeField] private float learningRate = 0.1f;
     [SerializeField] private float distanceImpact = 0.1f;
     [SerializeField] private float rotationImpact = 0.1f;
@@ -127,10 +128,20 @@ public class GradientDescentArmController : MonoBehaviour
         Quaternion finalJointRotation = new Quaternion();
         
         float updatedDistanceFromTarget = DistanceFromTarget(jointRotations, boneLengths, ref finalJointRotation);
-        float distanceGradient = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
 
-        float updatedRotationDifferenceFromTarget = Mathf.Abs(Quaternion.Angle(finalJointRotation, armTarget.rotation) / 180);
-        float rotationGradient = (updatedRotationDifferenceFromTarget - CurrentRotationDifferenceFromTarget) / deltaRotation;
+        float distanceGradient = 0;
+        if (CurrentDistanceFromTarget > targetDistance)
+        {
+            distanceGradient = (updatedDistanceFromTarget - CurrentDistanceFromTarget) / deltaRotation;
+        }
+
+        float rotationGradient = 0;
+        if (Mathf.Abs(Quaternion.Angle(hand.rotation, armTarget.rotation)) > targetAngle)
+        {
+            float updatedRotationDifferenceFromTarget = Mathf.Abs(Quaternion.Angle(finalJointRotation, armTarget.rotation) / 180);
+            rotationGradient = (updatedRotationDifferenceFromTarget - CurrentRotationDifferenceFromTarget) / deltaRotation;
+        }
+        
         float totalGradient = distanceGradient * distanceImpact + rotationGradient * rotationImpact;
         return totalGradient;
     }
