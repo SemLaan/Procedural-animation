@@ -42,6 +42,29 @@ public class GradientDescentArmController : MonoBehaviour
         }
     }
 
+
+    private void Awake()
+    {
+        Transform currentJoint = rootJoint;
+        List<Transform> jointList = new List<Transform>();
+        jointList.Add(currentJoint);
+
+        while (true)
+        {
+            try
+            {
+                currentJoint = currentJoint.GetChild(1);
+                jointList.Add(currentJoint);
+            }
+            catch
+            {
+                break;
+            }            
+        }
+        jointList.RemoveAt(jointList.Count - 1);
+        joints = jointList.ToArray();
+    }
+
     private void Start()
     {
         boneLengths = new float[joints.Length];
