@@ -374,12 +374,13 @@ MonoBehaviour:
   rootJoint: {fileID: 913181686}
   deltaRotation: 0.1
   targetDistance: 0.1
-  targetAngle: 30
+  targetAngle: 0.1
   targetComfort: 0.1
   learningRate: 0.3
   distanceImpact: 1
   rotationImpact: 10
   comfortImpact: 0.01
+  IKIterationsPerFrame: 1
   startupChecks: 1
   printGradients: 0
 --- !u!4 &295261361
