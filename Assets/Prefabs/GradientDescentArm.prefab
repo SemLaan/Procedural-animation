@@ -313,13 +313,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   armTarget: {fileID: 3723489810191441956}
   hand: {fileID: 6981369952743820327}
-  joints:
-  - {fileID: 3723489811702438410}
-  - {fileID: 3723489809923563946}
-  - {fileID: 6981369952034041436}
+  rootJoint: {fileID: 3723489811702438410}
   deltaRotation: 0.1
-  learningRate: 1.5
   targetDistance: 0.1
+  targetAngle: 0.1
+  targetComfort: 0.1
+  learningRate: 1
+  distanceImpact: 1
+  rotationImpact: 10
+  comfortImpact: 0.005
+  IKIterationsPerFrame: 1
+  startupChecks: 0
+  printGradients: 0
 --- !u!1 &3723489811702438413
 GameObject:
   m_ObjectHideFlags: 0
