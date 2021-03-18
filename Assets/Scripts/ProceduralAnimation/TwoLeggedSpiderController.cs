@@ -13,16 +13,65 @@ public class TwoLeggedSpiderController : MonoBehaviour
     [SerializeField] private float bodyToGroundDistance;
     [SerializeField] private float legWidth;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float movementSpeed;
+    [SerializeField] private float rotationSpeed;
+    [SerializeField] private float positionCorrectionSpeed;
+    [SerializeField] private float rotationCorrectionSpeed;
+    [SerializeField] private float rotationCorrectionAngle;
 
     private void Awake()
     {
-        InitLegTargetPositions();
+        //InitLegTargetPositions();
         AlignBody();
     }
 
     private void Update()
     {
-        
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            transform.position += transform.forward * movementSpeed;
+            Ray rayDownFromBody = new Ray(transform.position, -transform.up);
+            RaycastHit hit = new RaycastHit();
+            if (Physics.Raycast(rayDownFromBody, out hit, 100, groundLayer.value))
+            {
+                Vector3 targetPosition = hit.point + hit.normal * bodyToGroundDistance;
+                float distanceToTargetPosition = Vector3.Distance(targetPosition, transform.position);
+                if (distanceToTargetPosition < positionCorrectionSpeed)
+                {
+                    transform.position = targetPosition;
+                }
+                else
+                {
+                    transform.position += (targetPosition - transform.position).normalized * positionCorrectionSpeed; 
+                }
+            }
+            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+            if (Mathf.Abs(Quaternion.Angle(targetRotation, transform.rotation)) > rotationCorrectionAngle)
+            {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationCorrectionSpeed);
+            }
+        }
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            transform.position += -transform.forward * movementSpeed;
+            Ray rayDownFromBody = new Ray(transform.position, -transform.up);
+            RaycastHit hit = new RaycastHit();
+            if (Physics.Raycast(rayDownFromBody, out hit, 100, groundLayer.value))
+            {
+                Vector3 targetPosition = hit.point + hit.normal * bodyToGroundDistance;
+                transform.position = targetPosition;
+            }
+            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+            transform.rotation = targetRotation;
+        }
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            transform.rotation *= Quaternion.AngleAxis(rotationSpeed, Vector3.up);
+        }
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            transform.rotation *= Quaternion.AngleAxis(-rotationSpeed, Vector3.up);
+        }
     }
 
     private void InitLegTargetPositions()
