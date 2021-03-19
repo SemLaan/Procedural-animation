@@ -102,7 +102,7 @@ public class GradientDescentArmController : MonoBehaviour
             Check();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         for (int i = 0; i < IKIterationsPerFrame; i++)
         {
