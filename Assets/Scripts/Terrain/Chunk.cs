@@ -19,6 +19,7 @@ public class Chunk
         position = coord * (mapData.size - Vector3Int.one);
 
         meshObject = new GameObject("Terrain Chunk");
+        meshObject.layer = LayerMask.NameToLayer("Water");
         meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshFilter = meshObject.AddComponent<MeshFilter>();
         meshCollider = meshObject.AddComponent<MeshCollider>();
