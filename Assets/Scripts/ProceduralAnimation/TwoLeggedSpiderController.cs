@@ -28,31 +28,45 @@ public class TwoLeggedSpiderController : MonoBehaviour
     private void Update()
     {
         BodyMovement();
+        LegMovement();
+    }
+
+    private void LegMovement()
+    {
+        leftLeg.position = transform.position;
+        rightLeg.position = transform.position;
     }
 
     private void BodyMovement()
     {
+        // Forwards and backwards movement
         if (Input.GetKey(KeyCode.UpArrow))
         {
+            // Moving the body forward
             transform.position += transform.forward * movementSpeed * Time.deltaTime;
+            // Correcting the position and rotation of the body so it stays parallel to the ground and at a good distance
             RaycastHit hit;
             CorrectPosition(out hit);
             CorrectRotation(hit);
         }
         if (Input.GetKey(KeyCode.DownArrow))
         {
+            // Moving the body backward
             transform.position += -transform.forward * movementSpeed * Time.deltaTime;
+            // Correcting the position and rotation of the body so it stays parallel to the ground and at a good distance
             RaycastHit hit;
             CorrectPosition(out hit);
             CorrectRotation(hit);
         }
+
+        // Rotating left and right
         if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.rotation *= Quaternion.AngleAxis(rotationSpeed, Vector3.up);
+            transform.rotation *= Quaternion.AngleAxis(rotationSpeed * Time.deltaTime, Vector3.up);
         }
         if (Input.GetKey(KeyCode.LeftArrow))
         {
-            transform.rotation *= Quaternion.AngleAxis(-rotationSpeed, Vector3.up);
+            transform.rotation *= Quaternion.AngleAxis(-rotationSpeed * Time.deltaTime, Vector3.up);
         }
     }
 
