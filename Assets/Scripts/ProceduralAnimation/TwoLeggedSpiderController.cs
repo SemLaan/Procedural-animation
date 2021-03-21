@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class TwoLeggedSpiderController : MonoBehaviour
 {
+    private enum Leg
+    {
+        none,
+        right,
+        left,
+    }
+
     [Header("Objects")]
     [SerializeField] private Transform leftLegTarget;
     [SerializeField] private Transform rightLegTarget;
@@ -21,14 +28,20 @@ public class TwoLeggedSpiderController : MonoBehaviour
     [SerializeField] private float maxLegDistance;
     [SerializeField] private float legWidth;
     [SerializeField] private float legSteppingDistance;
+    [SerializeField] private float legMoveTime;
+    [SerializeField] private float stepHeight;
 
     private Vector3 movementDirection;
+    private Leg movingLeg = Leg.none;
+    private (Vector3 position, Quaternion rotation) newLegTarget;
+    private float legMoveStartTime;
+    private (Vector3 position, Quaternion rotation) oldLegTarget;
 
 
-    private void Awake()
+    private void Start()
     {
         //InitLegTargetPositions();
-        AlignBody();
+        //AlignBody();
     }
 
     private void Update()
@@ -42,17 +55,42 @@ public class TwoLeggedSpiderController : MonoBehaviour
         leftLeg.position = transform.position;
         rightLeg.position = transform.position;
 
-        if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
+        if (movingLeg == Leg.none)
         {
-            (Vector3 position, Quaternion rotation) newTarget = CalculateNewLegPositionAndRotation(-transform.right);
-            leftLegTarget.position = newTarget.position;
-            leftLegTarget.rotation = newTarget.rotation;
+            if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
+            {
+                newLegTarget = CalculateNewLegPositionAndRotation(-transform.right);
+                movingLeg = Leg.left;
+                legMoveStartTime = Time.time;
+                oldLegTarget = (leftLegTarget.position, leftLegTarget.rotation);
+                //leftLegTarget.position = newTarget.position;
+                //leftLegTarget.rotation = newTarget.rotation;
+            }
+            else if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
+            {
+                newLegTarget = CalculateNewLegPositionAndRotation(transform.right);
+                movingLeg = Leg.right;
+                legMoveStartTime = Time.time;
+                oldLegTarget = (rightLegTarget.position, rightLegTarget.rotation);
+                //rightLegTarget.position = newTarget.position;
+                //rightLegTarget.rotation = newTarget.rotation;
+            }
         }
-        if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
+        else
         {
-            (Vector3 position, Quaternion rotation) newTarget = CalculateNewLegPositionAndRotation(transform.right);
-            rightLegTarget.position = newTarget.position;
-            rightLegTarget.rotation = newTarget.rotation;
+            Transform currentMovingLeg = rightLegTarget;
+            if (movingLeg == Leg.left)
+                currentMovingLeg = leftLegTarget;
+
+            float moveProgress = (Time.time - legMoveStartTime) / legMoveTime;
+            if (moveProgress > 1)
+            {
+                moveProgress = 1;
+                movingLeg = Leg.none;
+            }
+            currentMovingLeg.position = Vector3.Lerp(oldLegTarget.position, newLegTarget.position, moveProgress)
+                    + transform.up * stepHeight * Mathf.Sin(moveProgress * Mathf.PI);
+            currentMovingLeg.rotation = Quaternion.Lerp(oldLegTarget.rotation, newLegTarget.rotation, moveProgress);
         }
     }
 
