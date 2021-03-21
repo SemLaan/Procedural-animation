@@ -9,15 +9,21 @@ public class TwoLeggedSpiderController : MonoBehaviour
     [SerializeField] private Transform rightLegTarget;
     [SerializeField] private Transform leftLeg;
     [SerializeField] private Transform rightLeg;
-    [Header("Variables")]
+    [Header("Body movement variables")]
     [SerializeField] private float bodyToGroundDistance;
-    [SerializeField] private float legWidth;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float movementSpeed;
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float positionCorrectionSpeed;
     [SerializeField] private float rotationCorrectionSpeed;
     [SerializeField] private float rotationCorrectionAngle;
+    [Header("Leg movement variables")]
+    [SerializeField] private float maxLegDistance;
+    [SerializeField] private float legWidth;
+    [SerializeField] private float legSteppingDistance;
+
+    private Vector3 movementDirection;
+
 
     private void Awake()
     {
@@ -35,6 +41,29 @@ public class TwoLeggedSpiderController : MonoBehaviour
     {
         leftLeg.position = transform.position;
         rightLeg.position = transform.position;
+
+        if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
+        {
+            (Vector3 position, Quaternion rotation) newTarget = CalculateNewLegPositionAndRotation(-transform.right);
+            leftLegTarget.position = newTarget.position;
+            leftLegTarget.rotation = newTarget.rotation;
+        }
+        if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
+        {
+            (Vector3 position, Quaternion rotation) newTarget = CalculateNewLegPositionAndRotation(transform.right);
+            rightLegTarget.position = newTarget.position;
+            rightLegTarget.rotation = newTarget.rotation;
+        }
+    }
+
+    private (Vector3, Quaternion) CalculateNewLegPositionAndRotation(Vector3 legDirection)
+    {
+        Vector3 rayOrigin = transform.position + legDirection * legWidth + movementDirection * legSteppingDistance;
+        Ray ray = new Ray(rayOrigin, -transform.up);
+        RaycastHit hit;
+        Physics.Raycast(ray, out hit, 100, groundLayer.value);
+
+        return (hit.point, Quaternion.FromToRotation(Vector3.right, -hit.normal));
     }
 
     private void BodyMovement()
@@ -44,15 +73,17 @@ public class TwoLeggedSpiderController : MonoBehaviour
         {
             // Moving the body forward
             transform.position += transform.forward * movementSpeed * Time.deltaTime;
+            movementDirection = transform.forward;
             // Correcting the position and rotation of the body so it stays parallel to the ground and at a good distance
             RaycastHit hit;
             CorrectPosition(out hit);
             CorrectRotation(hit);
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow))
         {
             // Moving the body backward
             transform.position += -transform.forward * movementSpeed * Time.deltaTime;
+            movementDirection = -transform.forward;
             // Correcting the position and rotation of the body so it stays parallel to the ground and at a good distance
             RaycastHit hit;
             CorrectPosition(out hit);
