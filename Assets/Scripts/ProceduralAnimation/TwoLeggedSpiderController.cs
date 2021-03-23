@@ -32,6 +32,7 @@ public class TwoLeggedSpiderController : MonoBehaviour
     [SerializeField] private float stepHeight;
 
     private Vector3 movementDirection;
+    private int rotationDirection;
     private Leg movingLeg = Leg.none;
     private (Vector3 position, Quaternion rotation) newLegTarget;
     private float legMoveStartTime;
@@ -66,17 +67,17 @@ public class TwoLeggedSpiderController : MonoBehaviour
             print("left leg angle: " + leftLegAngleToBody);
             if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
             {
-                newLegTarget = CalculateNewLegPositionAndRotation(-transform.right);
-                movingLeg = Leg.left;
-                legMoveStartTime = Time.time;
-                oldLegTarget = (leftLegTarget.position, leftLegTarget.rotation);
+                InitiateStep(Leg.left);
             }
             else if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
             {
-                newLegTarget = CalculateNewLegPositionAndRotation(transform.right);
-                movingLeg = Leg.right;
-                legMoveStartTime = Time.time;
-                oldLegTarget = (rightLegTarget.position, rightLegTarget.rotation);
+                InitiateStep(Leg.right);
+            } else if (rightLegAngleToBody > 90 && leftLegAngleToBody < -90)
+            {
+                if (Vector3.Distance(transform.position, leftLegTarget.position) > Vector3.Distance(transform.position, rightLegTarget.position))
+                    InitiateStep(Leg.left);
+                else
+                    InitiateStep(Leg.right);
             }
         }
         else // Moving the leg that is currently making a step
@@ -94,6 +95,21 @@ public class TwoLeggedSpiderController : MonoBehaviour
             currentMovingLeg.position = Vector3.Lerp(oldLegTarget.position, newLegTarget.position, moveProgress)
                     + transform.up * stepHeight * Mathf.Sin(moveProgress * Mathf.PI);
             currentMovingLeg.rotation = Quaternion.Lerp(oldLegTarget.rotation, newLegTarget.rotation, moveProgress);
+        }
+    }
+
+    private void InitiateStep(Leg leg)
+    {
+        movingLeg = leg;
+        legMoveStartTime = Time.time;
+        if (leg == Leg.right)
+        {
+            newLegTarget = CalculateNewLegPositionAndRotation(transform.right);
+            oldLegTarget = (rightLegTarget.position, rightLegTarget.rotation);
+        } else if (leg == Leg.left)
+        {
+            newLegTarget = CalculateNewLegPositionAndRotation(-transform.right);
+            oldLegTarget = (leftLegTarget.position, leftLegTarget.rotation);
         }
     }
 
