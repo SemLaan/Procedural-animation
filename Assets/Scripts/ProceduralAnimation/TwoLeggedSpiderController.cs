@@ -55,16 +55,21 @@ public class TwoLeggedSpiderController : MonoBehaviour
         leftLeg.position = transform.position;
         rightLeg.position = transform.position;
 
+        // Checking if any of the legs should move
         if (movingLeg == Leg.none)
         {
+            float rightLegAngleToBody = Vector3.SignedAngle(transform.forward, 
+                    Vector3.ProjectOnPlane(rightLegTarget.position - transform.position, transform.up), transform.up);
+            float leftLegAngleToBody = Vector3.SignedAngle(transform.forward,
+                    Vector3.ProjectOnPlane(leftLegTarget.position - transform.position, transform.up), transform.up);
+            print("right leg angle: " + rightLegAngleToBody);
+            print("left leg angle: " + leftLegAngleToBody);
             if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
             {
                 newLegTarget = CalculateNewLegPositionAndRotation(-transform.right);
                 movingLeg = Leg.left;
                 legMoveStartTime = Time.time;
                 oldLegTarget = (leftLegTarget.position, leftLegTarget.rotation);
-                //leftLegTarget.position = newTarget.position;
-                //leftLegTarget.rotation = newTarget.rotation;
             }
             else if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
             {
@@ -72,11 +77,9 @@ public class TwoLeggedSpiderController : MonoBehaviour
                 movingLeg = Leg.right;
                 legMoveStartTime = Time.time;
                 oldLegTarget = (rightLegTarget.position, rightLegTarget.rotation);
-                //rightLegTarget.position = newTarget.position;
-                //rightLegTarget.rotation = newTarget.rotation;
             }
         }
-        else
+        else // Moving the leg that is currently making a step
         {
             Transform currentMovingLeg = rightLegTarget;
             if (movingLeg == Leg.left)
