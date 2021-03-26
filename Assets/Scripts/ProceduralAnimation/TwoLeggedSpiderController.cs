@@ -65,19 +65,33 @@ public class TwoLeggedSpiderController : MonoBehaviour
                     Vector3.ProjectOnPlane(leftLegTarget.position - transform.position, transform.up), transform.up);
             print("right leg angle: " + rightLegAngleToBody);
             print("left leg angle: " + leftLegAngleToBody);
+            // If the left leg has fallen behind
             if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
             {
                 InitiateStep(Leg.left);
             }
+            // If the right leg has fallen behind
             else if (Vector3.Distance(transform.position, rightLegTarget.position) > maxLegDistance)
             {
                 InitiateStep(Leg.right);
-            } else if (rightLegAngleToBody > 90 && leftLegAngleToBody < -90)
+            }
+            // If both legs are starting to fall behind
+            else if (rightLegAngleToBody > 90 && leftLegAngleToBody < -90)
             {
                 if (Vector3.Distance(transform.position, leftLegTarget.position) > Vector3.Distance(transform.position, rightLegTarget.position))
                     InitiateStep(Leg.left);
                 else
                     InitiateStep(Leg.right);
+            } 
+            // If the right leg is not on the right side of the body anymore
+            else if (rightLegAngleToBody < 0)
+            {
+                InitiateStep(Leg.right);
+            }
+            // If the left leg is not on the left side of the body anymore
+            else if (leftLegAngleToBody > 0)
+            {
+                InitiateStep(Leg.left);
             }
         }
         else // Moving the leg that is currently making a step
