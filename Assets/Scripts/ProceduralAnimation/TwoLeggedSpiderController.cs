@@ -39,12 +39,6 @@ public class TwoLeggedSpiderController : MonoBehaviour
     private (Vector3 position, Quaternion rotation) oldLegTarget;
 
 
-    private void Start()
-    {
-        //InitLegTargetPositions();
-        //AlignBody();
-    }
-
     private void Update()
     {
         BodyMovement();
@@ -196,35 +190,5 @@ public class TwoLeggedSpiderController : MonoBehaviour
         {
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationCorrectionSpeed * Time.deltaTime);
         }
-    }
-
-    private void InitLegTargetPositions()
-    {
-        RaycastHit leftLegRay = new RaycastHit();
-        Physics.Raycast(transform.position + new Vector3(-legWidth, 0), Vector3.down, out leftLegRay, 100, groundLayer.value);
-        RaycastHit rightLegRay = new RaycastHit();
-        Physics.Raycast(transform.position + new Vector3(legWidth, 0), Vector3.down, out rightLegRay, 100, groundLayer.value);
-
-        leftLegTarget.position = transform.position + new Vector3(-legWidth, -leftLegRay.distance);
-        rightLegTarget.position = transform.position + new Vector3(legWidth, -rightLegRay.distance);
-        leftLegTarget.rotation = Quaternion.Euler(0, 0, -90);
-        rightLegTarget.rotation = Quaternion.Euler(0, 0, -90);
-    }
-
-    private void AlignBody()
-    {
-        Ray rayDownFromBody = new Ray(transform.position, -transform.up);
-        RaycastHit hit = new RaycastHit();
-        Physics.Raycast(rayDownFromBody, out hit, 100, groundLayer.value);
-        transform.position = hit.point + hit.normal * bodyToGroundDistance;
-
-        transform.rotation *= Quaternion.FromToRotation(transform.up, hit.normal);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        //Gizmos.DrawSphere(transform.position + new Vector3(-legWidth, -legHeight), 0.3f);
-        //Gizmos.DrawSphere(transform.position + new Vector3(legWidth, -legHeight), 0.3f);
     }
 }
