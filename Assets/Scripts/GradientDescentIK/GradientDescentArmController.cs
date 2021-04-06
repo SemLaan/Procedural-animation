@@ -193,7 +193,7 @@ public class GradientDescentArmController : MonoBehaviour
 
     private float DistanceFromTarget(Vector3[] rotations, float[] boneLenghts)
     {
-        Vector3 armPosition = joints[0].position;
+        Vector3 armPosition = joints[0].position; // Position of the root joint
         Quaternion rotation = Quaternion.identity;
         // Calculating the position of the tip of the arm relative to the root of the arm 
         // and adding that to the position of the root of the arm
@@ -202,6 +202,7 @@ public class GradientDescentArmController : MonoBehaviour
             rotation *= Quaternion.Euler(rotations[i]);
             armPosition += rotation * (Vector3.right * boneLenghts[i]);
         }
+        // armPosition now holds the position of the end effector
         float distance = Vector3.Distance(armTarget.position, armPosition);
         return distance;
     }

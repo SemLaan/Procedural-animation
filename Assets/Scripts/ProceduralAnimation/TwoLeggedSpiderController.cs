@@ -63,8 +63,6 @@ public class TwoLeggedSpiderController : MonoBehaviour
                     Vector3.ProjectOnPlane(rightLegTarget.position - transform.position, transform.up), transform.up);
             float leftLegAngleToBody = Vector3.SignedAngle(transform.forward,
                     Vector3.ProjectOnPlane(leftLegTarget.position - transform.position, transform.up), transform.up);
-            print("right leg angle: " + rightLegAngleToBody);
-            print("left leg angle: " + leftLegAngleToBody);
             // If the left leg has fallen behind
             if (Vector3.Distance(transform.position, leftLegTarget.position) > maxLegDistance)
             {
@@ -192,6 +190,7 @@ public class TwoLeggedSpiderController : MonoBehaviour
 
     private void CorrectRotation(RaycastHit hit)
     {
+        // hit is the raycast hit that hit the ground below the creature
         Quaternion targetRotation = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
         if (Mathf.Abs(Quaternion.Angle(targetRotation, transform.rotation)) > rotationCorrectionAngle)
         {
