@@ -88,20 +88,25 @@ public class TwoLeggedSpiderController : MonoBehaviour
         }
         else // Moving the leg that is currently making a step
         {
-            Transform currentMovingLeg = rightLegTarget;
-            if (movingLeg == Leg.left)
-                currentMovingLeg = leftLegTarget;
-
-            float moveProgress = (Time.time - legMoveStartTime) / legMoveTime;
-            if (moveProgress > 1)
-            {
-                moveProgress = 1;
-                movingLeg = Leg.none;
-            }
-            currentMovingLeg.position = Vector3.Lerp(oldLegTarget.position, newLegTarget.position, moveProgress)
-                    + transform.up * stepHeight * Mathf.Sin(moveProgress * Mathf.PI);
-            currentMovingLeg.rotation = Quaternion.Lerp(oldLegTarget.rotation, newLegTarget.rotation, moveProgress);
+            MoveSteppingLeg();
         }
+    }
+
+    private void MoveSteppingLeg()
+    {
+        Transform currentMovingLeg = rightLegTarget;
+        if (movingLeg == Leg.left)
+            currentMovingLeg = leftLegTarget;
+
+        float moveProgress = (Time.time - legMoveStartTime) / legMoveTime;
+        if (moveProgress > 1)
+        {
+            moveProgress = 1;
+            movingLeg = Leg.none;
+        }
+        currentMovingLeg.position = Vector3.Lerp(oldLegTarget.position, newLegTarget.position, moveProgress)
+                + transform.up * stepHeight * Mathf.Sin(moveProgress * Mathf.PI);
+        currentMovingLeg.rotation = Quaternion.Lerp(oldLegTarget.rotation, newLegTarget.rotation, moveProgress);
     }
 
     private void InitiateStep(Leg leg)
