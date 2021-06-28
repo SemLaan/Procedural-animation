@@ -20,6 +20,7 @@ public class Fabrik : MonoBehaviour
     private Quaternion[] startRotationBone;
     private Quaternion startRotationTarget;
     private Transform endEffector;
+    private Transform root;
 
     private void Awake()
     {
@@ -35,7 +36,10 @@ public class Fabrik : MonoBehaviour
     {
         // Find end effector and chain length
         chainLength = 0;
+        root = transform;
         endEffector = transform;
+        print(root.gameObject.name);
+        print(root.position);
         while (true)
         {
             Transform child;
@@ -74,6 +78,7 @@ public class Fabrik : MonoBehaviour
             completeBoneLength += currentBoneLength;
             boneLengths[i] = currentBoneLength;
         }
+        print(completeBoneLength);
     }
 
     private void ResolveIK()
@@ -81,13 +86,14 @@ public class Fabrik : MonoBehaviour
         // Getting current joint positions
         for (int i = 0; i < joints.Length; i++)
             jointPositions[i] = joints[i].position;
-        print("beef");
+        print("target: " + target.position);
+        print("root: " + root.position);
         // Calculating new joint positions
-        if((target.position - endEffector.position).sqrMagnitude >= completeBoneLength * completeBoneLength)
+        if (Vector3.Distance(target.position, root.position) >= completeBoneLength)
         {
-            print("beef2");
+            print(Vector3.Distance(target.position, root.position));
             // Stretch the chain in the direction of the target
-            var direction = (target.position - endEffector.position).normalized;
+            Vector3 direction = (target.position - root.position).normalized;
             // Update joint positions except for the root joint's position
             for (int i = 1; i < jointPositions.Length; i++)
                 jointPositions[i] = jointPositions[i - 1] + direction * boneLengths[i - 1];
