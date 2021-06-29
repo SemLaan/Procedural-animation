@@ -130,6 +130,16 @@ public class Fabrik : MonoBehaviour
             }
         }
 
+        // Rotating all joints except for the root and end effector towards the pole
+        for (int i = 1; i < jointPositions.Length - 1; i++)
+        {
+            Plane plane = new Plane(jointPositions[i + 1] - jointPositions[i - 1], jointPositions[i - 1]);
+            Vector3 poleProjection = plane.ClosestPointOnPlane(pole.position);
+            Vector3 jointProjection = plane.ClosestPointOnPlane(jointPositions[i]);
+            float angle = Vector3.SignedAngle(jointProjection - jointPositions[i - 1], poleProjection - jointPositions[i - 1], plane.normal);
+            jointPositions[i] = (Quaternion.AngleAxis(angle, plane.normal) * (jointPositions[i] - jointPositions[i - 1])) + jointPositions[i - 1];
+        }
+
         // Updating joint positions
         for (int i = 0; i < joints.Length; i++)
             joints[i].position = jointPositions[i];
