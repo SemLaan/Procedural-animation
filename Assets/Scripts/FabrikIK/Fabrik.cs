@@ -38,8 +38,6 @@ public class Fabrik : MonoBehaviour
         chainLength = 0;
         root = transform;
         endEffector = transform;
-        print(root.gameObject.name);
-        print(root.position);
         while (true)
         {
             Transform child;
@@ -78,7 +76,6 @@ public class Fabrik : MonoBehaviour
             completeBoneLength += currentBoneLength;
             boneLengths[i] = currentBoneLength;
         }
-        print(completeBoneLength);
     }
 
     private void ResolveIK()
@@ -86,12 +83,10 @@ public class Fabrik : MonoBehaviour
         // Getting current joint positions
         for (int i = 0; i < joints.Length; i++)
             jointPositions[i] = joints[i].position;
-        print("target: " + target.position);
-        print("root: " + root.position);
+
         // Calculating new joint positions
         if (Vector3.Distance(target.position, root.position) >= completeBoneLength)
         {
-            print(Vector3.Distance(target.position, root.position));
             // Stretch the chain in the direction of the target
             Vector3 direction = (target.position - root.position).normalized;
             // Update joint positions except for the root joint's position
