@@ -9,7 +9,7 @@ public class Fabrik : MonoBehaviour
 
     [Header("Solver Parameters")]
     [SerializeField] private int iterations = 10;
-    [SerializeField] private float delta = 0.001f;
+    [SerializeField] private float targetSize = 0.001f;
 
     private int chainLength;
     private float[] boneLengths;
