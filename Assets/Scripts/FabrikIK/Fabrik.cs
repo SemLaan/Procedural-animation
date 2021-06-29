@@ -85,13 +85,44 @@ public class Fabrik : MonoBehaviour
             jointPositions[i] = joints[i].position;
 
         // Calculating new joint positions
-        if (Vector3.Distance(target.position, root.position) >= completeBoneLength)
+        if ((target.position - root.position).sqrMagnitude >= completeBoneLength * completeBoneLength)
         {
             // Stretch the chain in the direction of the target
             Vector3 direction = (target.position - root.position).normalized;
             // Update joint positions except for the root joint's position
             for (int i = 1; i < jointPositions.Length; i++)
                 jointPositions[i] = jointPositions[i - 1] + direction * boneLengths[i - 1];
+        }
+        else
+        {
+            for (int iteration = 0; iteration < iterations; iteration++)
+            {
+                // Backwards
+                for (int i = jointPositions.Length - 1; i > 0; i--)
+                {
+                    // Set the end effector to the target position
+                    if (i == jointPositions.Length - 1)
+                    {
+                        jointPositions[i] = target.position;
+                    }
+                    else
+                    {
+                        // Slide the current joint towards or away from the next joint in line so that 
+                        // they are the correct distance away from each other
+                        // The correct distance being the length of the bone between those joints
+                        jointPositions[i] = jointPositions[i + 1] + (jointPositions[i] - jointPositions[i + 1]).normalized * boneLengths[i];
+                    }
+                }
+
+                // Forwards
+                // This does the same thing as the backwards loop except it works from the root instead of the end effector
+                // The root does not have to be set back to the root position in this case because in the previous loop the root wasn't touched
+                for (int i = 1; i < jointPositions.Length; i++)
+                {
+                    jointPositions[i] = jointPositions[i - 1] + (jointPositions[i] - jointPositions[i - 1]).normalized * boneLengths[i - 1];
+                }
+
+            }
         }
 
         // Updating joint positions
