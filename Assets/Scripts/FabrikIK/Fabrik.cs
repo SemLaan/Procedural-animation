@@ -122,6 +122,11 @@ public class Fabrik : MonoBehaviour
                     jointPositions[i] = jointPositions[i - 1] + (jointPositions[i] - jointPositions[i - 1]).normalized * boneLengths[i - 1];
                 }
 
+                // If the end effector is now close enough to the target: skip the remaining iterations
+                if ((jointPositions[jointPositions.Length - 1] - target.position).sqrMagnitude < targetSize * targetSize)
+                {
+                    break;
+                }
             }
         }
 
