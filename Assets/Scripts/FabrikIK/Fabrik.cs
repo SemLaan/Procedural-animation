@@ -16,9 +16,9 @@ public class Fabrik : MonoBehaviour
     private float completeBoneLength;
     private Transform[] joints;
     private Vector3[] jointPositions;
-    private Vector3[] startDirectionSucc;
-    private Quaternion[] startRotationBone;
-    private Quaternion startRotationTarget;
+    private Vector3[] initialJointDirections;
+    private Quaternion[] initialJointRotations;
+    private Quaternion initialTargetRotation;
     private Transform endEffector;
     private Transform root;
 
@@ -56,8 +56,8 @@ public class Fabrik : MonoBehaviour
         joints = new Transform[chainLength + 1];
         jointPositions = new Vector3[chainLength + 1];
         boneLengths = new float[chainLength];
-        startDirectionSucc = new Vector3[chainLength + 1];
-        startRotationBone = new Quaternion[chainLength + 1];
+        initialJointDirections = new Vector3[chainLength + 1];
+        initialJointRotations = new Quaternion[chainLength + 1];
 
         // Put the bones in an array
         Transform currentJoint = transform;
@@ -75,6 +75,21 @@ public class Fabrik : MonoBehaviour
             float currentBoneLength = Vector3.Distance(joints[i].position, joints[i + 1].position);
             completeBoneLength += currentBoneLength;
             boneLengths[i] = currentBoneLength;
+        }
+
+        // Saving information for rotating the joints in the correct direction
+        initialTargetRotation = target.rotation;
+        for (int i = 0; i < joints.Length; i++)
+        {
+            initialJointRotations[i] = joints[i].rotation;
+            if (i == joints.Length - 1)
+            {
+                initialJointDirections[i] = target.position - joints[i].position;
+            }
+            else
+            {
+                initialJointDirections[i] = joints[i + 1].position - joints[i].position;
+            }
         }
     }
 
@@ -142,6 +157,16 @@ public class Fabrik : MonoBehaviour
 
         // Updating joint positions
         for (int i = 0; i < joints.Length; i++)
+        {
+            if (i == joints.Length - 1)
+            {
+                joints[i].rotation = Quaternion.Inverse(target.rotation) * initialTargetRotation * Quaternion.Inverse(initialJointRotations[i]);
+            }
+            else
+            {
+                joints[i].rotation = Quaternion.FromToRotation(initialJointDirections[i], jointPositions[i + 1] - jointPositions[i]) * Quaternion.Inverse(initialJointRotations[i]);
+            }
             joints[i].position = jointPositions[i];
+        }
     }
 }
