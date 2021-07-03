@@ -169,4 +169,13 @@ public class Fabrik : MonoBehaviour
             joints[i].position = jointPositions[i];
         }
     }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (target != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(target.position, targetSize);
+        }
+    }
 }
